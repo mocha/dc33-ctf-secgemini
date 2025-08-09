@@ -1,0 +1,31 @@
+01   ?
+02   ?
+03   ?
+04   CTF{x0R_0N_fIv3_elEm3nT_SUbset5_Is_N0t_a_c1pHer_aT_alL}
+05   ?
+06   ?
+07   ?
+08   ?
+09   ?
+10   CTF{wH0Op5_1_guess_i_r34D_t00_mUcH_W1Th_fgets_@ft3R_4LL!!}
+11   ?
+12   ?
+13   CTF{Y0u_4r3_R34L_p0lygl0t!!1}
+14   CTF{eV3n_wH3n_th1nGS_aRE_G4rb1eD_y0u_c4n_St1lL_UnD3rSt4nD_Th3m!}
+15   CTF{zZz_s0lvInG_c@mpLicat3d_cOnsTra!nts_mak3s_m3_s00_sl3epy_zZz}
+16   CTF{I_c4n_r34d_y0ur_m1nd_4nd_c0d3_e0a52620190bb89cd263}
+17   CTF{Th4t_w4s_just_a_decoy_n0t_a_def3nse}
+18   
+19   ?
+20   CTF{very_committed_to_not_leak_secrets}
+21   CTF{log_all_the_traffic}
+22   CTF{visionary173.4CT-FF1-4G}
+23   ?
+24   CTF{these_stacks_go_deep_and_back_in_time}
+25   ?
+26   ?
+27   ?
+28   ?
+29   ?
+30   ?
+

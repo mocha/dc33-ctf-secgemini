@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Secure Portal</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="terminal">
+        <header>
+            <h1>> Welcome to the Secure Terminal</h1>
+                    <!-- Flash messages -->
+        
+            
+                <div class="flash-messages">
+                    
+                        <div class="flash-message success">Logged in</div>
+                    
+                        <div class="flash-message error">Don&#39;t do this</div>
+                    
+                </div>
+            
+        
+        </header>
+        <main>
+            
+<p>Welcome, hacker. This is a super secure, passwordless authentication portal.</p>
+<p>[ <a href="/register">Register</a> | <a href="/login">Login</a> | <a href="/posts">Posts</a> ]</p>
+
+        </main>
+        <footer>
+            <p><a href="/">[ MAIN PAGE ]</a></p> <p>Hacker's storage &copy; 2025</p>
+        </footer>
+    </div>
+</body>
+</html>

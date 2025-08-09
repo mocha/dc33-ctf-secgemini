@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Secure Portal</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="terminal">
+        <header>
+            <h1>> User Login</h1>
+                    <!-- Flash messages -->
+        
+            
+                <div class="flash-messages">
+                    
+                        <div class="flash-message error">You must be logged in to access this page.</div>
+                    
+                </div>
+            
+        
+        </header>
+        <main>
+            
+<form method="POST" action="/login">
+    <label>Username:</label>
+    <input type="text" name="username" required>
+    <label>One-Time Password (OTP):</label>
+    <input type="text" name="otp" required>
+    <button type="submit">Login</button>
+</form>
+<p>[ <a href="/register">Register</a> ]</p>
+
+        </main>
+        <footer>
+            <p><a href="/">[ MAIN PAGE ]</a></p> <p>Hacker's storage &copy; 2025</p>
+        </footer>
+    </div>
+</body>
+</html>

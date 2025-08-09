@@ -1,0 +1,136 @@
+Portable Flag Format
+
+1. Extension
+
+  The Portable Flag Format typically uses the "ctf" file extension.
+
+  For example:
+     "flag.ctf"
+
+2. Magic
+
+  The Portable Flag Format specification requires that the first four byte
+  of files conforming to the specification use the follow magic value to
+  help tools correctly identify the file:
+
+  \x50\x43\x54\x46
+
+3. Length
+
+  The Portable Flag Format specification requires that after the magic that
+  the total number of bytes, excluding the size of magic and the length, be
+  represented by a four byte little endian unsigned integer.
+
+4. Encryption
+
+  For the purposes of flag security in transit; the Portable Flag Format uses
+  two types of encryption.
+
+4.1. Outer Encryption
+
+  The Portable Flag Format specification requires that rest of the contents of
+  the file, that is everything except the magic and length, are encrypted
+  with the Outer Encryption.
+
+  A high-security four digit pin code, conforming to the following regular
+  expression "[0-9][0-9][0-9][0-9]", ensures only authorized access.
+
+  The Outer Encryption is performed with AES-128-CTR.
+
+  To make the key and iv required to decrypt the Outer Encryption from a
+  high-security four digit pin code perform the following:
+
+    1) First prepare the high-security four digit pin code as a 4-byte string
+       using the ascii representations of the numbers involved.
+
+       For example: a high-security four digit pin code of 1234 would be
+       \x31\x32\x33\x34 where \x31 is stored at the lowest address in
+       memory and \x34 is stored at the highest address in memory.
+
+    2) Next prepare the salt by taking note of the first 8-bytes of the file,
+       that is the magic and the length, in the order they appear, taking care
+       to note that the length is stored little endian, these bytes MUST be
+       appended to the data from step 1.
+
+       For example: a length of 100-bytes would mean the first 8-bytes of the
+       file are \x50\x43\x54\x46\x64\x00\x00\x00 and when appended to the data
+       from the example in step 1 this would be
+       \x31\x32\x33\x34\x50\x43\x54\x46\x64\x00\x00\x00 this value MUST
+       always consist of exactly 12-bytes.
+
+    3) Next repeatedly hash the 12 bytes from step 2, each iteration replacing
+       the input to the hash function with the previous step's output, exactly
+       42 times. The hash function that MUST be used for this purpose is
+       SHA-2-256. Note that by output we are referring to the raw binary
+       output of the hash function itself i.e. the 32-bytes of output.
+
+    4) Finally take the 32-byte output from the final iteration of step 3 and
+       split it into two halves. The lower 16-bytes will form the key and the
+       upper 16-bytes will form the iv.
+
+       For example see the following python code using cryptography package:
+
+       from cryptography.hazmat.primitives.ciphers import algorithms, modes, Cipher
+       from cryptography.hazmat.backends import default_backend
+
+       Cipher(algorithms.AES(hash[:16]), modes.CTR(hash[16:]), default_backend())
+
+    The first 32-bytes of this encrypted section contains a HMAC-SHA-2-256,
+    which uses the same key as the cipher, performed over the rest of the
+    plaintext. You can verify successful decryption by checking that the first
+    32-bytes of the plaintext is equal to HMAC-SHA-2-256(key, plaintext[32:]).
+
+    Note that this MAC is computed over the plaintext of the Outer Encryption.
+    This means that the bytes encrypted by the Inner Encryption are sill in
+    their ciphertext form at the point this MAC is computed.
+
+4.2. Inner Encryption
+
+    The section contains a high-security string obfuscation table.
+    To recover the flag from this table you MUST know the indices at which
+    each character of the flag exists within the table.
+
+    The high-security string obfuscation table is prefixed with a string
+    obfuscation table header as follows:
+
+       byte[4] table_header_type; \x53\x54\x42\x4c
+       uint32  table_length_in_bytes
+
+    Each entry in the high security string obfuscation table is 1-byte. Also
+    please note that the field table_length_in_bytes represents the size of the
+    table itself and does not include the 8-byte header.
+
+    The flag indices directly follow the high-security string obfuscation
+    table and are stored as little-endian unsigned 16-bit integers such that
+    \x00\x00 would reference the first character in the table and \x01\x00
+    would reference the second.
+
+    The flag indices are prefixed with a flag indices header as follows:
+
+       byte[4] flag_indicies_header_type; \x46\x4c\x41\x47
+       uint32  flag_indicies_length_in_bytes
+
+    The flag indices themselves are encrypted by the Inner Encryption and
+    MUST first be decrypted before they can be used to index the table.
+
+    Note that the table itself is ONLY encrypted by the Outer Encryption and
+    that ONLY the flag indices are encrypted by the Inner Encryption.
+
+    The Inner Encryption is performed identically to the Outer Encryption with
+    the following exceptions:
+
+       1) You MUST supply the initial 12-bytes passphrase yourself. By default
+          the reference implementation uses the following random 12-byte
+          sequence as a passphrase:
+
+          \xf9\x17\xdb\x00\x91\xff\x88\xa0\xb4\x83\x65\x99
+
+          You MUST not reuse this sequence for the Inner Encryption or you risk
+          a TOTAL compromise of the semantic security offered by the Portable
+          Flag Format's Inner Encryption!
+
+       2) There is no MAC present for the Inner Encryption. This means that
+          the first 2-bytes of the plaintext represent the first flag index,
+          the second 2-bytes the second flag index and so on.
+
+       3) Do not prepend the 8-bytes from the start of the file as a salt.
